@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SceneController : MonoBehaviour
 {
@@ -12,11 +14,12 @@ public class SceneController : MonoBehaviour
 
     private MemoryCard first;
     private MemoryCard second;
-
+    private int score = 0;
     public bool canReveal { get => second == null; }
 
     [SerializeField] MemoryCard originalCard;
     [SerializeField] Sprite[] images;
+    [SerializeField] TMP_Text scoreLabel;
     void Start()
     {
         Vector3 startPos = originalCard.transform.position;
@@ -72,7 +75,32 @@ public class SceneController : MonoBehaviour
         }
         else
         { 
-            second = card; 
+            second = card;
+            StartCoroutine(CheckMatch());
         }
+    }
+
+    private IEnumerator CheckMatch()
+    {
+        if (first.Id == second.Id)
+        {
+            score++;
+            scoreLabel.text = $"Score: {score}";
+        }
+        else
+        { 
+            yield return new WaitForSeconds(.5f);
+
+            first.Unreveal();
+            second.Unreveal();
+        }
+
+        first = null;
+        second = null;
+    }
+
+    private void Restart()
+    {
+        SceneManager.LoadScene("SampleScene");
     }
 }
